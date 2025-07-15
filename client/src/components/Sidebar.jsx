@@ -16,11 +16,11 @@ const Sidebar = () => {
 
   const { logout, onlineUsers, authUser } = useContext(AuthContext);
   const [input, setInput] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false); // ✅ toggle state
   const navigate = useNavigate();
 
-  // Filter out the current user and search by name
   const filteredUsers = users
-    .filter((user) => user._id !== authUser?._id) // 👈 Filter self
+    .filter((user) => user._id !== authUser?._id)
     .filter((user) =>
       user.fullName.toLowerCase().includes(input.toLowerCase())
     );
@@ -36,33 +36,51 @@ const Sidebar = () => {
       }`}
     >
       <div className="pb-5">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <img
             src="/lets_chat-removebg-preview.png"
             alt="logo"
             className="w-40"
           />
-          <div className="relative py-2 group">
+
+          {/* Menu Icon */}
+          <div className="relative py-2">
             <img
               src={assets.menu_icon}
               alt="Menu"
               className="h-5 cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)} // ✅ Toggle menu
             />
-            <div className="absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block">
-              <p
-                onClick={() => navigate("/profile")}
-                className="cursor-pointer text-sm"
-              >
-                Edit Profile
-              </p>
-              <hr className="my-2 border-t border-gray-500" />
-              <p onClick={logout} className="cursor-pointer text-sm">
-                Logout
-              </p>
-            </div>
+
+            {/* Dropdown Menu */}
+            {menuOpen && (
+              <div className="absolute top-full right-0 z-20 w-32 p-4 rounded-md bg-[#282142] border border-gray-600 text-gray-100 shadow-md">
+                <p
+                  onClick={() => {
+                    navigate("/profile");
+                    setMenuOpen(false);
+                  }}
+                  className="cursor-pointer text-sm mb-2"
+                >
+                  Edit Profile
+                </p>
+                <hr className="my-2 border-t border-gray-500" />
+                <p
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                  className="cursor-pointer text-sm"
+                >
+                  Logout
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Search Input */}
         <div className="bg-[#282142] rounded-full flex items-center gap-2 py-3 px-4 mt-5">
           <img src={assets.search_icon} alt="Search" className="w-3" />
           <input
@@ -73,15 +91,15 @@ const Sidebar = () => {
           />
         </div>
 
+        {/* User List */}
         <div className="flex flex-col mt-4">
-          {filteredUsers.map((user,index) => (
+          {filteredUsers.map((user) => (
             <div
               key={user._id}
               onClick={() => {
-              setSelectedUser(user);
-              setUnseenMessages(prev => ({ ...prev, [user._id]: 0 }));
+                setSelectedUser(user);
+                setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
               }}
-
               className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm ${
                 selectedUser?._id === user._id ? "bg-[#282142]/50" : ""
               }`}
